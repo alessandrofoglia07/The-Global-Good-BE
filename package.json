@@ -1,0 +1,28 @@
+{
+    "name": "create-modern-node-app",
+    "version": "1.0.0",
+    "description": "Modern Node Express App",
+    "scripts": {
+        "build": "tsc -p .",
+        "lint": "eslint . --ext .ts",
+        "lint:fix": "eslint . --ext .ts --fix",
+        "format": "prettier --write .",
+        "format:check": "prettier --check ."
+    },
+    "author": "alessandrofoglia07",
+    "license": "MIT",
+    "type": "module",
+    "dependencies": {
+        "dotenv": "^16.3.1"
+    },
+    "devDependencies": {
+        "@types/eslint": "^8.44.2",
+        "@types/node": "^20.6.3",
+        "@typescript-eslint/eslint-plugin": "^6.7.2",
+        "@typescript-eslint/parser": "^6.7.2",
+        "eslint": "^8.49.0",
+        "nodemon": "^3.0.1",
+        "prettier": "^3.0.3",
+        "typescript": "^5.2.2"
+    }
+}

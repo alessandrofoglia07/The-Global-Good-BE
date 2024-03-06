@@ -1,0 +1,9 @@
+service: my-lambda-service
+
+provider:
+    name: aws
+    runtime: nodejs20.x
+
+functions:
+    hello:
+        handler: dist/index.hello

@@ -1,0 +1,11 @@
+{
+    "root": true,
+    "parser": "@typescript-eslint/parser",
+    "plugins": ["@typescript-eslint"],
+    "extends": ["eslint:recommended", "plugin:@typescript-eslint/eslint-recommended", "plugin:@typescript-eslint/recommended"],
+    "ignorePatterns": ["dist", ".eslintrc", "node_modules", "public", "*.config.js"],
+    "env": {
+        "es2022": true,
+        "node": true
+    }
+}
