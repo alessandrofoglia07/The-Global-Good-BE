@@ -1,7 +1,7 @@
 {
-    "name": "create-modern-node-app",
+    "name": "modern-node-serverless-app",
     "version": "1.0.0",
-    "description": "Modern Node Express App",
+    "description": "Modern Node Serverless App",
     "scripts": {
         "build": "tsc -p .",
         "lint": "eslint . --ext .ts",
