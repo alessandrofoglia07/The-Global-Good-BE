@@ -1,4 +1,7 @@
 service: my-lambda-service
+frameworkVersion: '3'
+
+useDotenv: true
 
 provider:
     name: aws
@@ -6,5 +9,9 @@ provider:
     region: us-west-1
 
 functions:
-    hello:
-        handler: dist/index.hello
+    api:
+        handler: dist/index.handler
+        events:
+            - httpApi:
+                  path: /
+                  method: get
