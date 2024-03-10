@@ -3,7 +3,6 @@
     "version": "1.0.0",
     "description": "Modern Node Serverless App",
     "scripts": {
-        "build": "tsc -p .",
         "lint": "eslint . --ext .ts",
         "lint:fix": "eslint . --ext .ts --fix",
         "format": "prettier --write .",
@@ -12,17 +11,19 @@
     "author": "alessandrofoglia07",
     "license": "MIT",
     "type": "module",
-    "dependencies": {
-        "dotenv": "^16.3.1"
-    },
     "devDependencies": {
         "@types/eslint": "^8.44.2",
+        "@types/lodash": "^4.14.202",
         "@types/node": "^20.6.3",
         "@typescript-eslint/eslint-plugin": "^6.7.2",
         "@typescript-eslint/parser": "^6.7.2",
         "eslint": "^8.49.0",
         "nodemon": "^3.0.1",
         "prettier": "^3.0.3",
+        "serverless-plugin-typescript": "^2.1.5",
         "typescript": "^5.2.2"
+    },
+    "dependencies": {
+        "lodash": "^4.17.21"
     }
 }

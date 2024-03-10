@@ -3,7 +3,6 @@
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
         "skipLibCheck": true,
-        "target": "ES2022",
         "verbatimModuleSyntax": true,
         "allowJs": true,
         "resolveJsonModule": true,
@@ -16,9 +15,7 @@
         "moduleResolution": "NodeNext",
         "module": "NodeNext",
 
-        "rootDir": "./src",
-        "outDir": "./dist",
-
-        "lib": ["ES2022"]
-    }
+        "lib": ["es2015"]
+    },
+    "exclude": ["node_modules"]
 }

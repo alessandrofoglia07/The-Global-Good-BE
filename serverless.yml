@@ -8,10 +8,17 @@ provider:
     runtime: nodejs20.x
     region: us-west-1
 
+package:
+    patterns:
+        - '!node_modules/.pnpm/**'
+
 functions:
     api:
-        handler: dist/index.handler
+        handler: src/index.handler
         events:
             - httpApi:
-                  path: /
+                  path: /hello
                   method: get
+
+plugins:
+    - serverless-plugin-typescript
