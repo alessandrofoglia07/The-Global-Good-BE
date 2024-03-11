@@ -1,10 +1,23 @@
-import _ from 'lodash';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb';
 
-export const handler = async () => {
+const client = new DynamoDBClient({ region: 'us-west-1' });
+const docClient = DynamoDBDocumentClient.from(client);
+
+export const handler = async (event) => {
+
+    const params = {
+        TableName: 'theGlobalGood-serverless-data',
+        Key: {
+            id: await event?.queryStringParameters?.id
+        }
+    };
+
+    const command = new GetCommand(params);
+    const result = await docClient.send(command);
+
     return {
         statusCode: 200,
-        body: JSON.stringify({
-            message: `Hello World from Lambda! ${_.now()}`,
-        }),
+        body: JSON.stringify(result.Item),
     };
 };

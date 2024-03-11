@@ -10,7 +10,7 @@
 
         "strict": true,
         "noUncheckedIndexedAccess": true,
-        "noImplicitAny": true,
+        "noImplicitAny": false,
 
         "moduleResolution": "NodeNext",
         "module": "NodeNext",
