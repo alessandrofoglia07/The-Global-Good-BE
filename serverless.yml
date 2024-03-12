@@ -9,8 +9,8 @@ provider:
     region: us-west-1
 
 functions:
-    api:
-        handler: src/index.handler
+    hello:
+        handler: src/hello.handler
         events:
             - httpApi:
                   path: /hello
