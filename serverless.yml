@@ -7,6 +7,19 @@ provider:
     name: aws
     runtime: nodejs20.x
     region: us-west-1
+    iamRoleStatements:
+        - Effect: 'Allow'
+          Action:
+              - 'dynamodb:*'
+          Resource: 'arn:aws:dynamodb:us-west-1:*:table/*'
+    httpApi:
+        authorizers:
+            jwtCognitoAuthorizer:
+                type: jwt
+                identitySource: $request.header.Authorization
+                issuerUrl: ${env:ISSUER_URL}
+                audience:
+                    - ${env:AUDIENCE}
 
 functions:
     hello:
@@ -15,6 +28,8 @@ functions:
             - httpApi:
                   path: /hello
                   method: get
+                  authorizer:
+                      name: jwtCognitoAuthorizer
 
 plugins:
     - serverless-plugin-typescript
