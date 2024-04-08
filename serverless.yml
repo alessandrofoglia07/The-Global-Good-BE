@@ -30,6 +30,12 @@ functions:
                   method: get
                   authorizer:
                       name: jwtCognitoAuthorizer
+    scanProducts:
+        handler: src/scanProducts.handler
+        events:
+            - httpApi:
+                  path: /products/all
+                  method: get
 
 plugins:
     - serverless-plugin-typescript
