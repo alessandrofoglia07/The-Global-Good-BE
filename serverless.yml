@@ -30,6 +30,12 @@ functions:
                   method: get
                   authorizer:
                       name: jwtCognitoAuthorizer
+    queryProducts:
+        handler: src/queryProducts.handler
+        events:
+            - httpApi:
+                  path: /products
+                  method: get
     scanProducts:
         handler: src/scanProducts.handler
         events:
