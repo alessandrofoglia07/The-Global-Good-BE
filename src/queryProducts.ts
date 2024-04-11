@@ -1,5 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, QueryCommand, type QueryCommandInput } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, QueryCommand, type QueryCommandInput, ScanCommand } from '@aws-sdk/lib-dynamodb';
 
 const client = new DynamoDBClient({ region: 'us-west-1' });
 const docClient = DynamoDBDocumentClient.from(client);
@@ -14,12 +14,12 @@ interface Filters {
 const buildQuery = (filters: Filters) => {
     const queryParams: QueryCommandInput = {
         TableName: 'TheGlobalGood-Products',
-        ExpressionAttributeValues: undefined,
-        KeyConditionExpression: undefined
+        KeyConditionExpression: undefined,
+        ExpressionAttributeValues: undefined
     };
 
-    const keyConditionExpressions: string[] = [];
     const expressionAttributeValues: Record<string, Record<string, unknown>> = {};
+    const keyConditionExpressions: string[] = [];
 
     if (filters.collection) {
         keyConditionExpressions.push('collection = :collection');
@@ -48,24 +48,34 @@ const buildQuery = (filters: Filters) => {
 export const handler = async (event) => {
     let collection, maxPrice, availability, countryOfOrigin;
 
-    if (JSON.parse(event).queryStringParameters) {
+    if (event?.queryStringParameters) {
         collection = event.queryStringParameters.collection;
         maxPrice = event.queryStringParameters.maxPrice;
         availability = event.queryStringParameters.availability;
         countryOfOrigin = event.queryStringParameters.countryOfOrigin;
     }
 
-    console.table({ collection, maxPrice, availability, countryOfOrigin, params: JSON.parse(event).queryStringParameters });
+    const filters: Filters = {
+        collection: collection || null,
+        maxPrice: maxPrice ? parseInt(maxPrice) : 0,
+        availability: availability || null,
+        countries: countryOfOrigin ? countryOfOrigin.split(' ') : []
+    };
 
     try {
-        const filters: Filters = {
-            collection: collection || null,
-            maxPrice: maxPrice ? parseInt(maxPrice) : 0,
-            availability: availability || null,
-            countries: countryOfOrigin ? countryOfOrigin.split(' ') : []
-        };
-        const queryParams = buildQuery(filters);
-        const command = new QueryCommand(queryParams);
+        const params = buildQuery(filters);
+        if (!params.KeyConditionExpression) {
+            const command = new ScanCommand({ TableName: 'TheGlobalGood-Products' });
+            const { Items } = await docClient.send(command);
+            return {
+                statusCode: 200,
+                body: JSON.stringify({
+                    message: 'Hello World',
+                    data: Items
+                })
+            };
+        }
+        const command = new QueryCommand(params);
         const { Items } = await docClient.send(command);
         return {
             statusCode: 200,
