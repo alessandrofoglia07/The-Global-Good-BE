@@ -25,5 +25,6 @@ dist-ssr
 *.sw?
 
 .serverless
+event_mock.json
 
 .env
