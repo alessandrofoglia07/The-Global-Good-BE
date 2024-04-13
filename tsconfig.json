@@ -3,7 +3,6 @@
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
         "skipLibCheck": true,
-        "verbatimModuleSyntax": true,
         "allowJs": true,
         "resolveJsonModule": true,
         "moduleDetection": "force",

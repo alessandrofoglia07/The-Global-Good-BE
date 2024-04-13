@@ -5,6 +5,16 @@ import { type Handler, type APIGatewayProxyEvent, type APIGatewayProxyResult } f
 const client = new DynamoDBClient({ region: 'us-west-1' });
 const docClient = DynamoDBDocumentClient.from(client);
 
+/* API Gateway Request Parameters:
+    {
+        "queryStringParameters": {
+            "collection": "clothing-accessories",
+            "maxPrice": "100",
+            "availability": "true",
+            "countries": "Mexico,Brazil,India"
+        }
+    }
+*/
 export const handler: Handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     const { queryStringParameters } = event;
 

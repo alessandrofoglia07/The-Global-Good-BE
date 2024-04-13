@@ -30,4 +30,11 @@ functions:
                   method: get
 
 plugins:
-    - serverless-plugin-typescript
+    - serverless-esbuild
+
+custom:
+    esbuild:
+        packager: pnpm
+        bundle: true
+        minify: true
+        keepNames: true
