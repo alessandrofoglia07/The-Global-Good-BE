@@ -1,86 +1,83 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, ScanCommand, type ScanCommandInput } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, ScanCommand, type ScanCommandInput, QueryCommand, type QueryCommandInput } from '@aws-sdk/lib-dynamodb';
 import { type Handler, type APIGatewayProxyEvent, type APIGatewayProxyResult } from 'aws-lambda';
 
 const client = new DynamoDBClient({ region: 'us-west-1' });
 const docClient = DynamoDBDocumentClient.from(client);
 
-// TODO: Fix this
 export const handler: Handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     const { queryStringParameters } = event;
-    console.log('queryStringParameters:', queryStringParameters);
 
     try {
-        const page = queryStringParameters?.page || 1;
-        const pageSize = 2;
-
-        const exclusiveStartKey = page === 1 ? undefined : {
-            pageNum: Number(page) - 1,
-        };
-
         // Define the parameters for the scan operation
-        const params: ScanCommandInput = {
-            TableName: 'TheGlobalGood-Products',
-            Limit: pageSize,
-            ExclusiveStartKey: exclusiveStartKey
+        const params: ScanCommandInput | QueryCommandInput = {
+            TableName: 'TheGlobalGood-Products1'
         };
 
         // If no query string parameters are provided, return all products
         if (!queryStringParameters || (!queryStringParameters.collection && !queryStringParameters.maxPrice && !queryStringParameters.availability && !queryStringParameters.countries)) {
-            console.log('No query parameters found, returning all products...');
-            const { Items, LastEvaluatedKey } = await docClient.send(new ScanCommand(params));
+            const { Items } = await docClient.send(new ScanCommand(params));
             return {
                 statusCode: 200,
                 body: JSON.stringify({
-                    products: Items,
-                    nextPage: LastEvaluatedKey ? Number(page) + 1 : null
+                    products: Items
                 })
             };
         }
 
-        console.log('Query parameters found, filtering products...');
-
-        const collection = queryStringParameters.collection; // string
+        const collection = queryStringParameters.collection; // 'clothing-accessories' | 'home-living' | 'beauty-wellness' | 'food-beverages'
         const maxPrice = queryStringParameters.maxPrice; // number
         const availability = queryStringParameters.availability; // boolean
-        const countries = queryStringParameters.countries; // array of strings
+        const countries = queryStringParameters.countries; // 'Mexico,Brazil,India'
 
         const filterExpression: string[] = [];
         const expressionAttributeValues = {};
 
-        if (collection) {
-            filterExpression.push('#collection = :collection');
-            expressionAttributeValues[':collection'] = collection;
-            params.ExpressionAttributeNames = { '#collection': 'collection' };
-        }
-
-        if (maxPrice) {
+        if (maxPrice && !isNaN(Number(maxPrice))) {
             filterExpression.push('price <= :maxPrice');
             expressionAttributeValues[':maxPrice'] = Number(maxPrice);
         }
 
-        if (availability) {
+        if (availability === 'true') {
             filterExpression.push('availability > :availability');
             expressionAttributeValues[':availability'] = 0;
         }
 
         if (countries) {
-            filterExpression.push('contains(countries, :countries)');
-            expressionAttributeValues[':countries'] = countries;
+            const countriesArr = countries.split(',');
+            if (countriesArr.length > 0) {
+                const countriesExpression = countriesArr.map((_, i) => `:country${i}`).join(',');
+                filterExpression.push(`countryOfOrigin IN (${countriesExpression})`);
+                countriesArr.forEach((country, i) => {
+                    expressionAttributeValues[`:country${i}`] = country;
+                });
+            }
         }
 
         params.FilterExpression = filterExpression.join(' AND ') || undefined;
         params.ExpressionAttributeValues = Object.keys(expressionAttributeValues).length > 0 ? expressionAttributeValues : undefined;
-        console.log('params:', params);
 
-        const { Items, LastEvaluatedKey } = await docClient.send(new ScanCommand(params));
-        return {
-            statusCode: 200,
-            body: JSON.stringify({
-                products: Items,
-                nextPage: LastEvaluatedKey ? Number(page) + 1 : null
-            })
-        };
+        if (collection) {
+            (params as QueryCommandInput).KeyConditionExpression = '#collection = :collection';
+            (params as QueryCommandInput).ExpressionAttributeNames = { '#collection': 'collection' };
+            (params as QueryCommandInput).ExpressionAttributeValues = { ...params.ExpressionAttributeValues, ':collection': collection };
+
+            const { Items } = await docClient.send(new QueryCommand(params));
+            return {
+                statusCode: 200,
+                body: JSON.stringify({
+                    products: Items
+                })
+            };
+        } else {
+            const { Items } = await docClient.send(new ScanCommand(params));
+            return {
+                statusCode: 200,
+                body: JSON.stringify({
+                    products: Items
+                })
+            };
+        }
     } catch (err) {
         console.error(err);
         return {
