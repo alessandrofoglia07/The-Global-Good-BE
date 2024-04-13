@@ -22,25 +22,11 @@ provider:
                     - ${env:AUDIENCE}
 
 functions:
-    hello:
-        handler: src/hello.handler
-        events:
-            - httpApi:
-                  path: /hello
-                  method: get
-                  authorizer:
-                      name: jwtCognitoAuthorizer
     queryProducts:
         handler: src/queryProducts.handler
         events:
             - httpApi:
                   path: /products
-                  method: get
-    scanProducts:
-        handler: src/scanProducts.handler
-        events:
-            - httpApi:
-                  path: /products/all
                   method: get
 
 plugins:

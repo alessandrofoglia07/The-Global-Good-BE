@@ -11,7 +11,7 @@ export const handler: Handler = async (event: APIGatewayProxyEvent): Promise<API
     try {
         // Define the parameters for the scan operation
         const params: ScanCommandInput | QueryCommandInput = {
-            TableName: 'TheGlobalGood-Products1'
+            TableName: 'TheGlobalGood-Products'
         };
 
         // If no query string parameters are provided, return all products
