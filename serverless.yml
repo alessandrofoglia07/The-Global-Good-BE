@@ -28,6 +28,12 @@ functions:
             - httpApi:
                   path: /products
                   method: get
+    getProductByName:
+        handler: src/getProductByName.handler
+        events:
+            - httpApi:
+                  path: /product/{name}
+                  method: get
 
 plugins:
     - serverless-esbuild
