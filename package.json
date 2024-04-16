@@ -23,6 +23,7 @@
         "eslint": "^8.49.0",
         "nodemon": "^3.0.1",
         "prettier": "^3.0.3",
+        "serverless-dotenv-plugin": "^6.0.0",
         "serverless-esbuild": "^1.52.1",
         "serverless-iam-roles-per-function": "^3.2.0",
         "typescript": "^5.2.2"

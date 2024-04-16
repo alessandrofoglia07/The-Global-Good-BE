@@ -1,4 +1,4 @@
-service: my-lambda-service
+service: TheGlobalGood-serverless
 frameworkVersion: '3'
 
 useDotenv: true
@@ -15,6 +15,13 @@ provider:
                 issuerUrl: ${env:ISSUER_URL}
                 audience:
                     - ${env:AUDIENCE}
+        cors:
+            allowedOrigins:
+                - ${env:CLIENT_BASE_URL}
+            allowCredentials: true
+
+package:
+    individually: true
 
 functions:
     queryProducts:
@@ -27,7 +34,8 @@ functions:
             - Effect: 'Allow'
               Action:
                   - 'dynamodb:GetItem'
-              Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${env.DYNAMODB_PRODUCTS_TABLE_NAME}'
+                  - 'dynamodb:Scan'
+              Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_PRODUCTS_TABLE_NAME}'
     getProductByName:
         handler: src/getProductByName.handler
         events:
@@ -38,11 +46,12 @@ functions:
             - Effect: 'Allow'
               Action:
                   - 'dynamodb:GetItem'
-              Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${env.DYNAMODB_PRODUCTS_TABLE_NAME}'
+              Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_PRODUCTS_TABLE_NAME}'
 
 plugins:
     - serverless-esbuild
     - serverless-iam-roles-per-function
+    - serverless-dotenv-plugin
 
 custom:
     esbuild:
@@ -50,3 +59,11 @@ custom:
         bundle: true
         minify: true
         keepNames: true
+    dotenv:
+        exclude:
+            - POOL_CLIENT_ID
+            - USER_POOL_ID
+            - ISSUER_URL
+            - AUDIENCE
+        required:
+            file: true
