@@ -22,7 +22,7 @@ export const handler: Handler = async (event: APIGatewayProxyEvent): Promise<API
 
     try {
         const params: QueryCommandInput = {
-            TableName: "TheGlobalGood-Products",
+            TableName: process.env.DYNAMODB_PRODUCTS_TABLE_NAME,
             IndexName: "name-index",
             KeyConditionExpression: "#name = :name",
             ExpressionAttributeNames: {

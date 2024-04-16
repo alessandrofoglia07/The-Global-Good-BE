@@ -44,6 +44,9 @@ devDependencies:
   serverless-esbuild:
     specifier: ^1.52.1
     version: 1.52.1(esbuild@0.20.2)
+  serverless-iam-roles-per-function:
+    specifier: ^3.2.0
+    version: 3.2.0
   typescript:
     specifier: ^5.2.2
     version: 5.2.2
@@ -2433,6 +2436,10 @@ packages:
     resolution: {integrity: sha512-c4pB2CdGrGdjMKYLA+XiRDO7Y0PRQbm/Gzg8qMj+QH+pFVAoTp5sBpO0odL3FjoPCGjK96p6qsP+yQoiLoOBcw==}
     dev: true
 
+  /lodash@4.17.21:
+    resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
+    dev: true
+
   /lru-cache@6.0.0:
     resolution: {integrity: sha512-Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA==}
     engines: {node: '>=10'}
@@ -2764,6 +2771,13 @@ packages:
       p-map: 4.0.0
       ramda: 0.28.0
       semver: 7.5.4
+    dev: true
+
+  /serverless-iam-roles-per-function@3.2.0:
+    resolution: {integrity: sha512-AXmxACHEUsDcFDcv8QNwDgn2L0brRJ7pz/phD3lFB/wQ3TtPJkorC+J7PxgFQbaWIQk15EIlU83BtKXeQoPTAg==}
+    engines: {node: '>=10'}
+    dependencies:
+      lodash: 4.17.21
     dev: true
 
   /set-function-length@1.2.2:

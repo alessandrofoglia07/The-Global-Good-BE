@@ -21,7 +21,7 @@ export const handler: Handler = async (event: APIGatewayProxyEvent): Promise<API
     try {
         // Define the parameters for the scan operation
         const params: ScanCommandInput | QueryCommandInput = {
-            TableName: 'TheGlobalGood-Products'
+            TableName: process.env.DYNAMODB_PRODUCTS_TABLE_NAME
         };
 
         // If no query string parameters are provided, return all products
