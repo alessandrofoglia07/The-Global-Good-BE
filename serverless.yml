@@ -33,14 +33,14 @@ functions:
         iamRoleStatements:
             - Effect: 'Allow'
               Action:
-                  - 'dynamodb:GetItem'
+                  - 'dynamodb:Query'
                   - 'dynamodb:Scan'
               Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_PRODUCTS_TABLE_NAME}'
-    getProductByName:
-        handler: src/getProductByName.handler
+    getProduct:
+        handler: src/getProduct.handler
         events:
             - httpApi:
-                  path: /product/{name}
+                  path: /product/{collection}/{name}
                   method: get
         iamRoleStatements:
             - Effect: 'Allow'

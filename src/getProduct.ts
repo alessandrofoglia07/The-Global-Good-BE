@@ -1,41 +1,38 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, QueryCommand, QueryCommandInput } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, GetCommand, GetCommandInput } from '@aws-sdk/lib-dynamodb';
 import { Handler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 const client = new DynamoDBClient({ region: 'us-west-1' });
 const docClient = DynamoDBDocumentClient.from(client);
 
-// Request format: /product/{name}
+// Request format: /product/{collection}/{name}
 export const handler: Handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     const { pathParameters } = event;
 
-    if (!pathParameters || !pathParameters.name) {
+    if (!pathParameters || !pathParameters.name || pathParameters.name.trim() === '' || !pathParameters.collection) {
         return {
             statusCode: 400,
             body: JSON.stringify({
-                message: 'Product name is required'
+                message: 'Product name and collection are required'
             })
         };
     }
 
+    const collection = pathParameters.collection;
     const name = pathParameters.name;
 
     try {
-        const params: QueryCommandInput = {
+        const params: GetCommandInput = {
             TableName: process.env.DYNAMODB_PRODUCTS_TABLE_NAME,
-            IndexName: "name-index",
-            KeyConditionExpression: "#name = :name",
-            ExpressionAttributeNames: {
-                "#name": "name"
-            },
-            ExpressionAttributeValues: {
-                ":name": name
+            Key: {
+                collection,
+                name
             }
         };
 
-        const { Items } = await docClient.send(new QueryCommand(params));
+        const { Item } = await docClient.send(new GetCommand(params));
 
-        if (!Items || Items.length === 0) {
+        if (!Item) {
             return {
                 statusCode: 404,
                 body: JSON.stringify({
@@ -47,7 +44,7 @@ export const handler: Handler = async (event: APIGatewayProxyEvent): Promise<API
         return {
             statusCode: 200,
             body: JSON.stringify({
-                product: Items[0]
+                product: Item
             })
         };
     } catch (err) {
