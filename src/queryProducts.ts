@@ -21,7 +21,9 @@ export const handler: Handler = async (event: APIGatewayProxyEvent): Promise<API
     try {
         // Define the parameters for the scan operation
         const params: ScanCommandInput | QueryCommandInput = {
-            TableName: process.env.DYNAMODB_PRODUCTS_TABLE_NAME
+            TableName: process.env.DYNAMODB_PRODUCTS_TABLE_NAME,
+            ProjectionExpression: '#collection, #name, price, countryOfOrigin, img',
+            ExpressionAttributeNames: { '#collection': 'collection', '#name': 'name' }
         };
 
         // If no query string parameters are provided, return all products
@@ -69,7 +71,6 @@ export const handler: Handler = async (event: APIGatewayProxyEvent): Promise<API
 
         if (collection) {
             (params as QueryCommandInput).KeyConditionExpression = '#collection = :collection';
-            (params as QueryCommandInput).ExpressionAttributeNames = { '#collection': 'collection' };
             (params as QueryCommandInput).ExpressionAttributeValues = { ...params.ExpressionAttributeValues, ':collection': collection };
 
             const { Items } = await docClient.send(new QueryCommand(params));
