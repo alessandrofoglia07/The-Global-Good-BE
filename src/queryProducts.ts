@@ -11,7 +11,8 @@ const docClient = DynamoDBDocumentClient.from(client);
             "collection": "clothing-accessories",
             "maxPrice": "100",
             "availability": "true",
-            "countries": "Mexico,Brazil,India"
+            "countries": "Mexico,Brazil,India",
+            "limit": "8"
         }
     }
 */
@@ -23,7 +24,8 @@ export const handler: Handler = async (event: APIGatewayProxyEvent): Promise<API
         const params: ScanCommandInput | QueryCommandInput = {
             TableName: process.env.DYNAMODB_PRODUCTS_TABLE_NAME,
             ProjectionExpression: '#collection, #name, price, countryOfOrigin, img',
-            ExpressionAttributeNames: { '#collection': 'collection', '#name': 'name' }
+            ExpressionAttributeNames: { '#collection': 'collection', '#name': 'name' },
+            Limit: queryStringParameters?.limit ? Number(queryStringParameters.limit) : undefined
         };
 
         // If no query string parameters are provided, return all products
