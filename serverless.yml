@@ -47,6 +47,17 @@ functions:
               Action:
                   - 'dynamodb:GetItem'
               Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_PRODUCTS_TABLE_NAME}'
+    getMultipleProducts:
+        handler: src/getMultipleProducts.handler
+        events:
+            - httpApi:
+                  path: /product/multiple
+                  method: get
+        iamRoleStatements:
+            - Effect: 'Allow'
+              Action:
+                  - 'dynamodb:BatchGetItem'
+              Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_PRODUCTS_TABLE_NAME}'
 
 plugins:
     - serverless-esbuild
