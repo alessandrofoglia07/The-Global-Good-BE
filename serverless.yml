@@ -25,7 +25,7 @@ package:
 
 functions:
     queryProducts:
-        handler: src/queryProducts.handler
+        handler: src/products/queryProducts.handler
         events:
             - httpApi:
                   path: /products
@@ -37,7 +37,7 @@ functions:
                   - 'dynamodb:Scan'
               Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_PRODUCTS_TABLE_NAME}'
     getProduct:
-        handler: src/getProduct.handler
+        handler: src/products/getProduct.handler
         events:
             - httpApi:
                   path: /product/{collection}/{name}
@@ -48,7 +48,7 @@ functions:
                   - 'dynamodb:GetItem'
               Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_PRODUCTS_TABLE_NAME}'
     getMultipleProducts:
-        handler: src/getMultipleProducts.handler
+        handler: src/products/getMultipleProducts.handler
         events:
             - httpApi:
                   path: /product/multiple
@@ -58,6 +58,30 @@ functions:
               Action:
                   - 'dynamodb:BatchGetItem'
               Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_PRODUCTS_TABLE_NAME}'
+    getReviewsOfProduct:
+        handler: src/reviews/getReviewsOfProduct.handler
+        events:
+            - httpApi:
+                  path: /product/{collection}/{name}/review
+                  method: get
+        iamRoleStatements:
+            - Effect: 'Allow'
+              Action:
+                  - 'dynamodb:Query'
+              Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_REVIEWS_TABLE_NAME}'
+    createReview:
+        handler: src/reviews/createReview.handler
+        events:
+            - httpApi:
+                  path: /product/{collection}/{name}/review
+                  method: put
+                  authorizer:
+                      name: jwtCognitoAuthorizer
+        iamRoleStatements:
+            - Effect: 'Allow'
+              Action:
+                  - 'dynamodb:Put'
+              Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_REVIEWS_TABLE_NAME}'
 
 plugins:
     - serverless-esbuild
@@ -72,8 +96,6 @@ custom:
         keepNames: true
     dotenv:
         exclude:
-            - POOL_CLIENT_ID
-            - USER_POOL_ID
             - ISSUER_URL
             - AUDIENCE
         required:

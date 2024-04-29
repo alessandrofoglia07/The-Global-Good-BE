@@ -11,11 +11,13 @@
     "author": "alessandrofoglia07",
     "license": "MIT",
     "devDependencies": {
+        "@aws-sdk/client-cognito-identity-provider": "^3.564.0",
         "@aws-sdk/client-dynamodb": "^3.529.1",
         "@aws-sdk/lib-dynamodb": "^3.529.1",
         "@types/aws-lambda": "^8.10.137",
         "@types/eslint": "^8.44.2",
         "@types/node": "^20.6.3",
+        "@types/uuid": "^9.0.8",
         "@typescript-eslint/eslint-plugin": "^6.7.2",
         "@typescript-eslint/parser": "^6.7.2",
         "aws-lambda": "^1.0.7",
@@ -27,5 +29,10 @@
         "serverless-esbuild": "^1.52.1",
         "serverless-iam-roles-per-function": "^3.2.0",
         "typescript": "^5.2.2"
+    },
+    "dependencies": {
+        "aws-jwt-verify": "^4.0.1",
+        "uuid": "^9.0.1",
+        "zod": "^3.23.4"
     }
 }
