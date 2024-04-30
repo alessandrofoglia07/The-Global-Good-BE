@@ -17,9 +17,40 @@ const cognitoJwtVerifier = CognitoJwtVerifier.create({
 // Request format: /product/{collection}/{name}/review
 export const handler: Handler = async (event: APIGatewayProxyEvent) => {
     const { pathParameters, body } = event;
-    const token = event.headers!.Authorization!.replace('Bearer ', '');
 
-    const payload = await cognitoJwtVerifier.verify(token);
+    let auth;
+
+    try {
+        if (!event.headers) {
+            return {
+                statusCode: 401,
+                body: JSON.stringify({
+                    message: 'Unauthorized'
+                })
+            };
+        }
+        let token = event.headers.authorization?.replace('Bearer ', '');
+        if (!token) {
+            token = event.headers.Authorization?.replace('Bearer ', '');
+        }
+        if (!token) {
+            return {
+                statusCode: 401,
+                body: JSON.stringify({
+                    message: 'Unauthorized'
+                })
+            };
+        }
+        auth = await cognitoJwtVerifier.verify(token);
+    } catch (err) {
+        console.error(err);
+        return {
+            statusCode: 401,
+            body: JSON.stringify({
+                message: 'Unauthorized'
+            })
+        };
+    }
 
     if (!pathParameters || !pathParameters.name || pathParameters.name.trim() === '' || !pathParameters.collection) {
         return {
@@ -63,7 +94,7 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
 
         const Item: Review = {
             productName: name,
-            username: payload.username,
+            username: auth.username,
             reviewId: uuidv4(),
             rating: review.rating,
             reviewTitle: review.reviewTitle,

@@ -74,13 +74,13 @@ functions:
         events:
             - httpApi:
                   path: /product/{collection}/{name}/review
-                  method: put
+                  method: post
                   authorizer:
                       name: jwtCognitoAuthorizer
         iamRoleStatements:
             - Effect: 'Allow'
               Action:
-                  - 'dynamodb:Put'
+                  - 'dynamodb:PutItem'
               Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_REVIEWS_TABLE_NAME}'
 
 plugins:
