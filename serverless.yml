@@ -82,6 +82,17 @@ functions:
               Action:
                   - 'dynamodb:PutItem'
               Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_REVIEWS_TABLE_NAME}'
+    searchProducts:
+        handler: src/products/searchProducts.handler
+        events:
+            - httpApi:
+                  path: /products/search
+                  method: get
+        iamRoleStatements:
+            - Effect: 'Allow'
+              Action:
+                  - 'dynamodb:Scan'
+              Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_PRODUCTS_TABLE_NAME}'
 
 plugins:
     - serverless-esbuild
