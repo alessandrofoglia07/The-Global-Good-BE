@@ -1,0 +1,92 @@
+# Products functions
+# Query products based on filters
+queryProducts:
+    handler: src/products/queryProducts.handler
+    events:
+        - httpApi:
+              path: /products
+              method: get
+    iamRoleStatements:
+        - Effect: 'Allow'
+          Action:
+              - 'dynamodb:Query'
+              - 'dynamodb:Scan'
+          Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_PRODUCTS_TABLE_NAME}'
+# Get a single specific products
+getProduct:
+    handler: src/products/getProduct.handler
+    events:
+        - httpApi:
+              path: /product/{collection}/{name}
+              method: get
+    iamRoleStatements:
+        - Effect: 'Allow'
+          Action:
+              - 'dynamodb:GetItem'
+          Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_PRODUCTS_TABLE_NAME}'
+# Get multiple specific products
+getMultipleProducts:
+    handler: src/products/getMultipleProducts.handler
+    events:
+        - httpApi:
+              path: /product/multiple
+              method: get
+    iamRoleStatements:
+        - Effect: 'Allow'
+          Action:
+              - 'dynamodb:BatchGetItem'
+          Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_PRODUCTS_TABLE_NAME}'
+# Text-based search
+searchProducts:
+    handler: src/products/searchProducts.handler
+    events:
+        - httpApi:
+              path: /products/search
+              method: get
+    iamRoleStatements:
+        - Effect: 'Allow'
+          Action:
+              - 'dynamodb:Scan'
+          Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_PRODUCTS_TABLE_NAME}'
+
+# Reviews
+# Get reviews of a product
+getReviewsOfProduct:
+    handler: src/reviews/getReviewsOfProduct.handler
+    events:
+        - httpApi:
+              path: /reviews/product
+              method: get
+    iamRoleStatements:
+        - Effect: 'Allow'
+          Action:
+              - 'dynamodb:Query'
+          Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_REVIEWS_TABLE_NAME}'
+# Create review for a product
+createReview:
+    handler: src/reviews/createReview.handler
+    events:
+        - httpApi:
+              path: /reviews/product
+              method: post
+              authorizer:
+                  name: jwtCognitoAuthorizer
+    iamRoleStatements:
+        - Effect: 'Allow'
+          Action:
+              - 'dynamodb:PutItem'
+          Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_REVIEWS_TABLE_NAME}'
+# Get reviews from a user
+getReviewsFromUsername:
+    handler: src/reviews/getReviewsFromUsername.handler
+    events:
+        - httpApi:
+              path: /reviews/username
+              method: get
+              authorizer:
+                  name: jwtCognitoAuthorizer
+    iamRoleStatements:
+        - Effect: 'Allow'
+          Action:
+              - 'dynamodb:Query'
+          Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_REVIEWS_TABLE_NAME}/index/username-createdAt-index'

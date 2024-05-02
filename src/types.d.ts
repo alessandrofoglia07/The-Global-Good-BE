@@ -1,4 +1,6 @@
-type Collection = 'clothing-accessories' | 'home-living' | 'beauty-wellness' | 'food-beverages';
+import { Collection } from "./static/collections";
+
+export type Collection = Collection;
 
 export interface Product {
     collection: Collection; // partition key
@@ -13,10 +15,11 @@ export interface Product {
 
 export interface Review {
     productName: string; // partition key (foreign key)
-    reviewId: string; // sort key
+    createdAt: number; // sort key
+    productCollection: Collection; // (foreign key)
+    reviewId: string;
     username: string; // (foreign key)
     rating: number;
     reviewTitle: string;
     reviewText: string;
-    timestamp: number;
 }

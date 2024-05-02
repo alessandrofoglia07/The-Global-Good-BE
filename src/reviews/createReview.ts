@@ -3,8 +3,9 @@ import { DynamoDBDocumentClient, PutCommand, PutCommandInput } from "@aws-sdk/li
 import { Handler, APIGatewayProxyEvent } from "aws-lambda";
 import { z } from 'zod';
 import { CognitoJwtVerifier } from 'aws-jwt-verify';
-import { Review } from "../types";
+import { Collection, Review } from "../types";
 import { v4 as uuidv4 } from 'uuid';
+import { collections } from "../static/collections";
 
 const client = new DynamoDBClient({ region: "us-west-1" });
 const docClient = DynamoDBDocumentClient.from(client);
@@ -14,9 +15,9 @@ const cognitoJwtVerifier = CognitoJwtVerifier.create({
     tokenUse: 'access'
 });
 
-// Request format: /product/{collection}/{name}/review
+// Request format: /reviews/product?name=NAME&collection=COLLECTION
 export const handler: Handler = async (event: APIGatewayProxyEvent) => {
-    const { pathParameters, body } = event;
+    const { queryStringParameters, body } = event;
 
     let auth;
 
@@ -43,7 +44,6 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
         }
         auth = await cognitoJwtVerifier.verify(token);
     } catch (err) {
-        console.error(err);
         return {
             statusCode: 401,
             body: JSON.stringify({
@@ -52,7 +52,7 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
         };
     }
 
-    if (!pathParameters || !pathParameters.name || pathParameters.name.trim() === '' || !pathParameters.collection) {
+    if (!queryStringParameters || !queryStringParameters.name || queryStringParameters.name.trim() === '' || !queryStringParameters.collection || queryStringParameters.collection.trim() === '' || !collections.includes(queryStringParameters.collection as Collection)) {
         return {
             statusCode: 400,
             body: JSON.stringify({
@@ -61,7 +61,7 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
         };
     }
 
-    const { name } = pathParameters;
+    const { name } = queryStringParameters;
 
     if (!body) {
         return {
@@ -73,7 +73,7 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
     }
 
     try {
-        const review = JSON.parse(body);
+        const review = typeof body !== 'string' && body ? body : JSON.parse(body);
 
         const reviewSchema = z.object({
             rating: z.number().int().min(1).max(5),
@@ -82,6 +82,7 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
         });
 
         const validate = reviewSchema.safeParse(review);
+
         if (!validate.success) {
             return {
                 statusCode: 400,
@@ -94,12 +95,13 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
 
         const Item: Review = {
             productName: name,
+            createdAt: Date.now(),
+            productCollection: queryStringParameters.collection as Collection,
             username: auth.username,
             reviewId: uuidv4(),
             rating: review.rating,
             reviewTitle: review.reviewTitle,
-            reviewText: review.reviewText,
-            timestamp: Date.now()
+            reviewText: review.reviewText
         };
 
         const command: PutCommandInput = {
@@ -114,11 +116,11 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
             body: JSON.stringify(Item)
         };
     } catch (err) {
-        console.error(err);
         return {
             statusCode: 500,
             body: JSON.stringify({
-                message: 'Internal server error'
+                message: 'Internal server error',
+                error: err
             })
         };
     }

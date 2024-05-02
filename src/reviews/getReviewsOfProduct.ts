@@ -5,20 +5,21 @@ import { Handler, APIGatewayProxyEvent } from 'aws-lambda';
 const client = new DynamoDBClient({ region: 'us-west-1' });
 const docClient = DynamoDBDocumentClient.from(client);
 
-// Request format: /product/{collection}/{name}/reviews
+// Request format: /reviews/product?name=NAME&limit=LIMIT
 export const handler: Handler = async (event: APIGatewayProxyEvent) => {
-    const { pathParameters } = event;
+    const { queryStringParameters } = event;
 
-    if (!pathParameters || !pathParameters.name || pathParameters.name.trim() === '' || !pathParameters.collection) {
+    if (!queryStringParameters || !queryStringParameters.name || queryStringParameters.name.trim() === '') {
         return {
             statusCode: 400,
             body: JSON.stringify({
-                message: 'Product name and collection are required'
+                message: 'Product name is required'
             })
         };
     }
 
-    const name = pathParameters.name;
+    const name = queryStringParameters.name;
+    const limit = queryStringParameters.limit || '5';
 
     try {
         const params: QueryCommandInput = {
@@ -26,7 +27,9 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
             KeyConditionExpression: 'productName = :name',
             ExpressionAttributeValues: {
                 ':name': name
-            }
+            },
+            ScanIndexForward: false, // Sort by latest reviews
+            Limit: parseInt(limit)
         };
 
         const { Items } = await docClient.send(new QueryCommand(params));
@@ -36,7 +39,6 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
             body: JSON.stringify(Items)
         };
     } catch (err) {
-        console.error(err);
         return {
             statusCode: 500,
             body: JSON.stringify({
