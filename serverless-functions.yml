@@ -90,3 +90,46 @@ getReviewsFromUsername:
           Action:
               - 'dynamodb:Query'
           Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_REVIEWS_TABLE_NAME}/index/username-createdAt-index'
+# Blog posts
+# Get blog posts
+getBlogPosts:
+    handler: src/blogPosts/getBlogPosts.handler
+    events:
+        - httpApi:
+              path: /blog
+              method: get
+    iamRoleStatements:
+        - Effect: 'Allow'
+          Action:
+              - 'dynamodb:GetItem'
+              - 'dynamodb:Query'
+              - 'dynamodb:Scan'
+          Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_BLOGPOSTS_TABLE_NAME}'
+# Post blog post of a product (admin access only)
+createBlogPost:
+    handler: src/blogPosts/createBlogPost.handler
+    events:
+        - httpApi:
+              path: /blog/admin/new
+              method: post
+              authorizer:
+                  name: jwtCognitoAuthorizer
+    iamRoleStatements:
+        - Effect: 'Allow'
+          Action:
+              - 'dynamodb:PutItem'
+          Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_BLOGPOSTS_TABLE_NAME}'
+# Delete blog post of a product (admin access only)
+deleteBlogPost:
+    handler: src/blogPosts/deleteBlogPost.handler
+    events:
+        - httpApi:
+              path: /blog/admin/delete
+              method: delete
+              authorizer:
+                  name: jwtCognitoAuthorizer
+    iamRoleStatements:
+        - Effect: 'Allow'
+          Action:
+              - 'dynamodb:DeleteItemCommand'
+          Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_BLOGPOSTS_TABLE_NAME}'

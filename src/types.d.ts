@@ -23,3 +23,20 @@ export interface Review {
     reviewTitle: string;
     reviewText: string;
 }
+
+export interface BlogPost {
+    productName: string; // partition key (foreign key) 
+    createdAt: number; // sort key 
+    img: string;
+    title: string;
+    content: {
+        custom: false;
+        introduction: string;
+        story: string;
+        fairTradeImpact: string;
+    } | {
+        custom: true;
+        content: string;
+    };
+    productCollection: Collection; // foreign key
+}
