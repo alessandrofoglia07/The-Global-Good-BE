@@ -5,11 +5,13 @@ import { APIGatewayProxyEvent, Handler } from "aws-lambda";
 const client = new DynamoDBClient({ region: 'us-west-1' });
 const docClient = DynamoDBDocumentClient.from(client);
 
-// request format: /blog/admin/new?productName=PRODUCT_NAME&createdAt=CREATED_AT&productCollection=PRODUCT_COLLECTION
+// request format: /blog/admin/new?productName=PRODUCT_NAME&createdAt=CREATED_AT&productCollection=PRODUCT_COLLECTION&fullPost=false
 export const handler: Handler = async (event: APIGatewayProxyEvent) => {
     const { queryStringParameters } = event;
 
-    const { productName, createdAt, productCollection } = queryStringParameters || {};
+    const { productName, createdAt, productCollection, fullPost } = queryStringParameters || {};
+
+    const fullPostBool = fullPost !== undefined ? fullPost !== 'false' : true;
 
     // If createdAt is provided, productName must also be provided
     if (!productName && createdAt) {
@@ -24,11 +26,11 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
     try {
         // if no query parameters are provided, return all blog posts
         if (!productName) {
-            console.log('Getting all blog posts...');
             // get all blog posts (Scan)
             const params: ScanCommandInput = {
                 TableName: process.env.DYNAMODB_BLOGPOSTS_TABLE_NAME,
-                Limit: 16
+                Limit: 16,
+                ProjectionExpression: fullPostBool ? undefined : 'productName, createdAt, productCollection, title, content.introduction, img'
             };
             if (productCollection) {
                 params.FilterExpression = 'productCollection = :productCollection';
@@ -45,14 +47,14 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
 
         // if productName and createdAt are provided, return a specific blog post
         if (productName && createdAt) {
-            console.log(`Getting blog post with productName: ${productName} and createdAt: ${createdAt}...`);
             // get a specific blog post (GetItem)
             const params: GetCommandInput = {
                 TableName: process.env.DYNAMODB_BLOGPOSTS_TABLE_NAME,
                 Key: {
                     productName,
                     createdAt: parseInt(createdAt)
-                }
+                },
+                ProjectionExpression: fullPostBool ? undefined : 'productName, createdAt, productCollection, title, content.introduction, img'
             };
             const { Item } = await docClient.send(new GetCommand(params));
             return {
@@ -63,14 +65,14 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
 
         // if productName is provided, return all blog posts with the same productName
         if (productName) {
-            console.log(`Getting blog posts with productName: ${productName}...`);
             // get all blog posts with the same productName (Query)
             const params: QueryCommandInput = {
                 TableName: process.env.DYNAMODB_BLOGPOSTS_TABLE_NAME,
                 KeyConditionExpression: 'productName = :productName',
                 ExpressionAttributeValues: {
                     ':productName': productName
-                }
+                },
+                ProjectionExpression: fullPostBool ? undefined : 'productName, createdAt, productCollection, title, content.introduction, img'
             };
             if (productCollection) {
                 params.FilterExpression = 'productCollection = :productCollection';
