@@ -5,32 +5,32 @@ import { APIGatewayProxyEvent, Handler } from "aws-lambda";
 const client = new DynamoDBClient({ region: 'us-west-1' });
 const docClient = DynamoDBDocumentClient.from(client);
 
-// request format: /blog/admin/new?productName=PRODUCT_NAME&createdAt=CREATED_AT&productCollection=PRODUCT_COLLECTION&fullPost=false
+// request format: /blog/admin/new?theme=PRODUCT_NAME&createdAt=CREATED_AT&productCollection=PRODUCT_COLLECTION&fullPost=false
 export const handler: Handler = async (event: APIGatewayProxyEvent) => {
     const { queryStringParameters } = event;
 
-    const { productName, createdAt, productCollection, fullPost } = queryStringParameters || {};
+    const { theme, createdAt, productCollection, fullPost } = queryStringParameters || {};
 
     const fullPostBool = fullPost !== undefined ? fullPost !== 'false' : true;
 
-    // If createdAt is provided, productName must also be provided
-    if (!productName && createdAt) {
+    // If createdAt is provided, theme must also be provided
+    if (!theme && createdAt) {
         return {
             statusCode: 400,
             body: JSON.stringify({
-                message: 'If createdAt is provided, productName must also be provided'
+                message: 'If createdAt is provided, theme must also be provided'
             })
         };
     }
 
     try {
         // if no query parameters are provided, return all blog posts
-        if (!productName) {
+        if (!theme) {
             // get all blog posts (Scan)
             const params: ScanCommandInput = {
                 TableName: process.env.DYNAMODB_BLOGPOSTS_TABLE_NAME,
                 Limit: 16,
-                ProjectionExpression: fullPostBool ? undefined : 'productName, createdAt, productCollection, title, content.introduction, img'
+                ProjectionExpression: fullPostBool ? undefined : 'theme, createdAt, productCollection, title, content.introduction, img'
             };
             if (productCollection) {
                 params.FilterExpression = 'productCollection = :productCollection';
@@ -45,16 +45,16 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
             };
         }
 
-        // if productName and createdAt are provided, return a specific blog post
-        if (productName && createdAt) {
+        // if theme and createdAt are provided, return a specific blog post
+        if (theme && createdAt) {
             // get a specific blog post (GetItem)
             const params: GetCommandInput = {
                 TableName: process.env.DYNAMODB_BLOGPOSTS_TABLE_NAME,
                 Key: {
-                    productName,
+                    theme,
                     createdAt: parseInt(createdAt)
                 },
-                ProjectionExpression: fullPostBool ? undefined : 'productName, createdAt, productCollection, title, content.introduction, img'
+                ProjectionExpression: fullPostBool ? undefined : 'theme, createdAt, productCollection, title, content.introduction, img'
             };
             const { Item } = await docClient.send(new GetCommand(params));
             return {
@@ -63,16 +63,16 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
             };
         }
 
-        // if productName is provided, return all blog posts with the same productName
-        if (productName) {
-            // get all blog posts with the same productName (Query)
+        // if theme is provided, return all blog posts with the same theme
+        if (theme) {
+            // get all blog posts with the same theme (Query)
             const params: QueryCommandInput = {
                 TableName: process.env.DYNAMODB_BLOGPOSTS_TABLE_NAME,
-                KeyConditionExpression: 'productName = :productName',
+                KeyConditionExpression: 'theme = :theme',
                 ExpressionAttributeValues: {
-                    ':productName': productName
+                    ':theme': theme
                 },
-                ProjectionExpression: fullPostBool ? undefined : 'productName, createdAt, productCollection, title, content.introduction, img'
+                ProjectionExpression: fullPostBool ? undefined : 'theme, createdAt, productCollection, title, content.introduction, img'
             };
             if (productCollection) {
                 params.FilterExpression = 'productCollection = :productCollection';

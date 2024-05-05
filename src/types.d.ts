@@ -25,7 +25,7 @@ export interface Review {
 }
 
 export interface BlogPost {
-    productName: string; // partition key (foreign key) 
+    theme: string; // partition key (foreign key) 
     createdAt: number; // sort key 
     img: string;
     title: string;
@@ -36,7 +36,13 @@ export interface BlogPost {
         fairTradeImpact: string;
     } | {
         custom: true;
-        content: string;
+        paragraphs: { title: string; content: string; }[];
     };
-    productCollection: Collection; // foreign key
+    likes: string[]; // (foreign key)
+    comments: {
+        username: string; // (foreign key)
+        createdAt: number;
+        comment: string;
+    }[];
+    productCollection?: Collection; // foreign key
 }

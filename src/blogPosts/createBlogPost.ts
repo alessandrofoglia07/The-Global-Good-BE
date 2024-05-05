@@ -67,24 +67,26 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
         };
     }
 
-    const { productName, title, content, productCollection, img } = typeof body !== 'string' && body ? body : JSON.parse(body);
+    const { theme, title, content, productCollection, img } = typeof body !== 'string' && body ? body : JSON.parse(body);
 
-    if (!productName || productName.trim() === '' || !title || title.trim() === '' || !content || content.trim() === '' || !productCollection || productCollection.trim() === '') {
+    if (!theme || theme.trim() === '' || !title || title.trim() === '' || !content || content.trim() === '' || !productCollection || productCollection.trim() === '') {
         return {
             statusCode: 400,
             body: JSON.stringify({
-                message: 'Product name, title, content, and collection are required'
+                message: 'Theme, title, content, and collection are required'
             })
         };
     }
 
     const newItem: BlogPost = {
-        productName,
+        theme,
         createdAt: Date.now(),
-        img: img || productName.toLowerCase().replace(/ /g, '-') + '.png',
+        img: img || theme.toLowerCase().replace(/ /g, '-') + '.png',
         title,
         content,
-        productCollection
+        productCollection,
+        likes: [],
+        comments: []
     };
 
     const params: PutCommandInput = {

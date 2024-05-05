@@ -12,7 +12,7 @@ const cognitoJwtVerifier = CognitoJwtVerifier.create({
     tokenUse: 'access'
 });
 
-// request format: /blog/admin/delete?productName=PRODUCT_NAME&createdAt=CREATED_AT
+// request format: /blog/admin/delete?theme=PRODUCT_NAME&createdAt=CREATED_AT
 export const handler: Handler = async (event: APIGatewayProxyEvent) => {
 
     let auth;
@@ -58,7 +58,7 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
     }
 
     const { queryStringParameters } = event;
-    if (!queryStringParameters || !queryStringParameters.productName || !queryStringParameters.createdAt) {
+    if (!queryStringParameters || !queryStringParameters.theme || !queryStringParameters.createdAt) {
         return {
             statusCode: 400,
             body: JSON.stringify({
@@ -66,12 +66,12 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
             })
         };
     }
-    const { productName, createdAt } = queryStringParameters;
+    const { theme, createdAt } = queryStringParameters;
 
     const params: DeleteCommandInput = {
         TableName: process.env.DYNAMODB_BLOGPOSTS_TABLE_NAME,
         Key: {
-            productName,
+            theme,
             createdAt: parseInt(createdAt)
         }
     };
