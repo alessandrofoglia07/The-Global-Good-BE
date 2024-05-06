@@ -30,7 +30,7 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
             const params: ScanCommandInput = {
                 TableName: process.env.DYNAMODB_BLOGPOSTS_TABLE_NAME,
                 Limit: 16,
-                ProjectionExpression: fullPostBool ? undefined : 'theme, createdAt, productCollection, title, content.introduction, img'
+                ProjectionExpression: fullPostBool ? undefined : 'theme, createdAt, productCollection, title, content.introduction, img, likes'
             };
             if (productCollection) {
                 params.FilterExpression = 'productCollection = :productCollection';
@@ -54,7 +54,7 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
                     theme,
                     createdAt: parseInt(createdAt)
                 },
-                ProjectionExpression: fullPostBool ? undefined : 'theme, createdAt, productCollection, title, content.introduction, img'
+                ProjectionExpression: fullPostBool ? undefined : 'theme, createdAt, productCollection, title, content.introduction, img, likes'
             };
             const { Item } = await docClient.send(new GetCommand(params));
             return {
@@ -72,7 +72,7 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
                 ExpressionAttributeValues: {
                     ':theme': theme
                 },
-                ProjectionExpression: fullPostBool ? undefined : 'theme, createdAt, productCollection, title, content.introduction, img'
+                ProjectionExpression: fullPostBool ? undefined : 'theme, createdAt, productCollection, title, content.introduction, img, likes'
             };
             if (productCollection) {
                 params.FilterExpression = 'productCollection = :productCollection';
