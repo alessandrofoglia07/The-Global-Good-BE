@@ -38,7 +38,8 @@ export interface BlogPost {
         custom: true;
         paragraphs: { title: string; content: string; }[];
     };
-    likes: string[]; // (foreign key)
+    likes: string[] | number; // (foreign key)
+    liked?: boolean;
     comments: {
         username: string; // (foreign key)
         createdAt: number;

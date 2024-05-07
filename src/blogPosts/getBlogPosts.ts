@@ -1,9 +1,15 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, ScanCommand, QueryCommand, ScanCommandInput, QueryCommandInput, GetCommand, GetCommandInput } from "@aws-sdk/lib-dynamodb";
+import { CognitoJwtVerifier } from "aws-jwt-verify";
 import { APIGatewayProxyEvent, Handler } from "aws-lambda";
 
 const client = new DynamoDBClient({ region: 'us-west-1' });
 const docClient = DynamoDBDocumentClient.from(client);
+const cognitoJwtVerifier = CognitoJwtVerifier.create({
+    userPoolId: process.env.USER_POOL_ID,
+    clientId: process.env.POOL_CLIENT_ID,
+    tokenUse: 'access'
+});
 
 // request format: /blog/admin/new?theme=PRODUCT_NAME&createdAt=CREATED_AT&productCollection=PRODUCT_COLLECTION&fullPost=false
 export const handler: Handler = async (event: APIGatewayProxyEvent) => {
@@ -12,6 +18,9 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
     const { theme, createdAt, productCollection, fullPost } = queryStringParameters || {};
 
     const fullPostBool = fullPost !== undefined ? fullPost !== 'false' : true;
+
+    const token = event.headers?.authorization?.replace('Bearer ', '');
+    const username = token ? (await cognitoJwtVerifier.verify(token))?.username : null;
 
     // If createdAt is provided, theme must also be provided
     if (!theme && createdAt) {
@@ -39,9 +48,17 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
                 };
             }
             const { Items } = await docClient.send(new ScanCommand(params));
+            const newItems = Items?.map((item) => {
+                const newItem = { ...item };
+                if (newItem.likes) {
+                    newItem.likes = (newItem.likes as string[]).length;
+                }
+                newItem.liked = username ? (item.likes as string[]).includes(username) : false;
+                return newItem;
+            });
             return {
                 statusCode: 200,
-                body: JSON.stringify(Items)
+                body: JSON.stringify(newItems)
             };
         }
 
@@ -57,9 +74,16 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
                 ProjectionExpression: fullPostBool ? undefined : 'theme, createdAt, productCollection, title, content.introduction, img, likes'
             };
             const { Item } = await docClient.send(new GetCommand(params));
+            const newItem = { ...Item };
+            if (Item) {
+                if (newItem.likes) {
+                    newItem.likes = (newItem.likes as string[]).length;
+                }
+                newItem.liked = username ? (Item.likes as string[]).includes(username) : false;
+            }
             return {
                 statusCode: 200,
-                body: JSON.stringify(Item)
+                body: JSON.stringify(newItem)
             };
         }
 
@@ -82,9 +106,17 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
                 };
             }
             const { Items } = await docClient.send(new QueryCommand(params));
+            const newItems = Items?.map((item) => {
+                const newItem = { ...item };
+                if (newItem.likes) {
+                    newItem.likes = (newItem.likes as string[]).length;
+                }
+                newItem.liked = username ? (item.likes as string[]).includes(username) : false;
+                return newItem;
+            });
             return {
                 statusCode: 200,
-                body: JSON.stringify(Items)
+                body: JSON.stringify(newItems)
             };
         }
 
