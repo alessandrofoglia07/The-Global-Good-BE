@@ -150,7 +150,7 @@ likeBlogPost:
           Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_BLOGPOSTS_TABLE_NAME}"
 # Add comment to blog post
 addCommentToPost:
-    handler: src/blogPosts/addCommentToPost.handler
+    handler: src/blogPosts/comments/addCommentToPost.handler
     events:
         - httpApi:
               path: /blog/{theme}/{createdAt}/comment
@@ -162,6 +162,21 @@ addCommentToPost:
           Action:
               - "dynamodb:GetItem"
               - "dynamodb:PutItem"
+          Resource:
+              - "arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_BLOGPOSTS_TABLE_NAME}"
+              - "arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_BLOGPOSTCOMMENTS_TABLE_NAME}"
+# Get comments of blog post
+getCommentsOfPost:
+    handler: src/blogPosts/comments/getCommentsOfPost.handler
+    events:
+        - httpApi:
+              path: /blog/{theme}/{createdAt}/comments
+              method: get
+    iamRoleStatements:
+        - Effect: "Allow"
+          Action:
+              - "dynamodb:BatchGetItem"
+              - "dynamodb:GetItem"
           Resource:
               - "arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_BLOGPOSTS_TABLE_NAME}"
               - "arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_BLOGPOSTCOMMENTS_TABLE_NAME}"

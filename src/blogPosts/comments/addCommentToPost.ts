@@ -1,7 +1,7 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, GetCommandInput, PutCommand, PutCommandInput } from '@aws-sdk/lib-dynamodb';
 import { APIGatewayProxyEvent, Handler } from 'aws-lambda';
-import { BlogPost, Comment } from '../types';
+import { BlogPost, Comment } from '../../types';
 import { v4 as uuid } from 'uuid';
 import { CognitoJwtVerifier } from 'aws-jwt-verify';
 import z from 'zod';
@@ -95,7 +95,7 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
 
         const newBlogPost = {
             ...Item,
-            comments: [...Item.comments, newComment.commentId]
+            comments: [...Item.comments, newComment.commentId + '#' + newComment.createdAt]
         };
 
         const putCommentParams: PutCommandInput = {
