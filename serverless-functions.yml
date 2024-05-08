@@ -148,3 +148,20 @@ likeBlogPost:
               - "dynamodb:GetItem"
               - "dynamodb:PutItem"
           Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_BLOGPOSTS_TABLE_NAME}"
+# Add comment to blog post
+addCommentToPost:
+    handler: src/blogPosts/addCommentToPost.handler
+    events:
+        - httpApi:
+              path: /blog/{theme}/{createdAt}/comment
+              method: post
+              authorizer:
+                  name: jwtCognitoAuthorizer
+    iamRoleStatements:
+        - Effect: "Allow"
+          Action:
+              - "dynamodb:GetItem"
+              - "dynamodb:PutItem"
+          Resource:
+              - "arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_BLOGPOSTS_TABLE_NAME}"
+              - "arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_BLOGPOSTCOMMENTS_TABLE_NAME}"

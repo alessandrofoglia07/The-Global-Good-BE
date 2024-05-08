@@ -98,8 +98,8 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
         };
     }
 
-    if (blogPost.likes.includes(username)) {
-        const list = blogPost.likes;
+    if ((blogPost.likes as string[]).includes(username)) {
+        const list = blogPost.likes as string[];
         const indexToRemove = list.indexOf(username);
         list.splice(indexToRemove, 1);
         const putParams: PutCommandInput = {
@@ -132,7 +132,7 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
         TableName: process.env.DYNAMODB_BLOGPOSTS_TABLE_NAME,
         Item: {
             ...blogPost,
-            likes: [...blogPost.likes, username]
+            likes: [...(blogPost.likes as string[]), username]
         }
     };
 
