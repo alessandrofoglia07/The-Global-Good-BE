@@ -13,6 +13,7 @@ const cognitoJwtVerifier = CognitoJwtVerifier.create({
     tokenUse: 'access'
 });
 
+// request format: /blog/admin/new
 export const handler: Handler = async (event: APIGatewayProxyEvent) => {
     let auth;
 

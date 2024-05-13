@@ -11,7 +11,7 @@ const cognitoJwtVerifier = CognitoJwtVerifier.create({
     tokenUse: 'access'
 });
 
-// request format: /blog/admin/new?theme=PRODUCT_NAME&createdAt=CREATED_AT&productCollection=PRODUCT_COLLECTION&fullPost=false
+// request format: /blog?theme=PRODUCT_NAME&createdAt=CREATED_AT&productCollection=PRODUCT_COLLECTION&fullPost=false
 export const handler: Handler = async (event: APIGatewayProxyEvent) => {
     const { queryStringParameters } = event;
 
