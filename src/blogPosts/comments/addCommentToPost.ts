@@ -18,6 +18,7 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
 
     let auth;
 
+    // user needs to be authenticated to add a comment
     try {
         if (!event.headers) {
             return {

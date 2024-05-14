@@ -21,6 +21,7 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
 
     let auth;
 
+    // user needs to be authenticated to add a review
     try {
         if (!event.headers) {
             return {
