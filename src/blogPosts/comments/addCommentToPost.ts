@@ -14,6 +14,7 @@ const cognitoJwtVerifier = CognitoJwtVerifier.create({
     tokenUse: 'access'
 });
 
+// request format: /{theme}/{createdAt}/addComment
 export const handler: Handler = async (event: APIGatewayProxyEvent) => {
 
     let auth;

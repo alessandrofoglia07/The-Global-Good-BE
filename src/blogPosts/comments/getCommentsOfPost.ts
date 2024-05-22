@@ -6,6 +6,7 @@ import { BlogPost } from '../../types';
 const client = new DynamoDBClient({ region: 'us-west-1' });
 const docClient = DynamoDBDocumentClient.from(client);
 
+// request format: /{theme}/{createdAt}/comments?limit=15
 export const handler: Handler = async (event: APIGatewayProxyEvent) => {
     const { theme } = event.pathParameters || {};
     const createdAt = parseInt(event.pathParameters?.createdAt || '');
